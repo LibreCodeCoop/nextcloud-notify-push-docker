@@ -1,24 +1,24 @@
 # nextcloud-notify-push-docker
 
-Docker packaging for `notify_push`, with the upstream source vendored in `./notify_push` via `git subtree`.
+Empacotamento Docker do `notify_push`, com o codigo-fonte upstream versionado em `./notify_push` via `git subtree`.
 
-This repository adds:
+Este repositorio adiciona:
 
-- a Portuguese README for the vendored `notify_push` project
-- an example deployment behind `nginx-proxy`
-- GitHub Actions configuration to publish the image to GHCR
+- um README em portugues para o projeto `notify_push` vendorizado
+- um exemplo de deploy atras do `nginx-proxy`
+- a configuracao de GitHub Actions para publicar a imagem no GHCR
 
-## Repository layout
+## Estrutura do repositorio
 
-- `notify_push/`: upstream `nextcloud/notify_push` source tree
-- `docker-compose.example.yml`: example deployment with `nginx-proxy`
-- `.github/workflows/publish-ghcr.yml`: image publishing workflow for GHCR
+- `notify_push/`: arvore de codigo do `nextcloud/notify_push`
+- `docker-compose.example.yml`: exemplo de deploy com `nginx-proxy`
+- `.github/workflows/publish-ghcr.yml`: workflow de publicacao da imagem no GHCR
 
-## Deploy behind nginx-proxy
+## Deploy atras do nginx-proxy
 
-Use the same host for Nextcloud and `notify_push`, and route `/push/` to the push service.
+Use o mesmo host para o Nextcloud e para o `notify_push`, roteando `/push/` para o servico de push.
 
-Example using the generic domain `cloud.example.com`:
+Exemplo usando o dominio generico `cloud.example.com`:
 
 ```yaml
 services:
@@ -51,16 +51,16 @@ services:
       - internal
 ```
 
-Important details:
+Pontos importantes:
 
-- `notify_push` must be attached to the same Docker network as `nginx-proxy`
-- use `VIRTUAL_PATH=/push/` with the trailing slash
-- use `VIRTUAL_DEST=/` so the `/push/` prefix is stripped before forwarding the request
-- with `nginx-proxy`, `expose` is usually enough and you do not need to publish port `7867` on the host
+- o `notify_push` precisa estar na mesma rede Docker do `nginx-proxy`
+- use `VIRTUAL_PATH=/push/` com barra final
+- use `VIRTUAL_DEST=/` para remover o prefixo `/push/` antes de encaminhar a requisicao
+- em setups com `nginx-proxy`, normalmente `expose` e suficiente e voce nao precisa publicar a porta `7867` no host
 
-## Configure in Nextcloud
+## Configuracao no Nextcloud
 
-Once the service is reachable through the reverse proxy:
+Depois que o servico estiver acessivel pelo proxy reverso:
 
 ```bash
 occ app:enable notify_push
@@ -68,50 +68,51 @@ occ notify_push:setup https://cloud.example.com/push
 occ notify_push:self-test
 ```
 
-## Test the setup
+## Como testar
 
-Verify the proxy responses:
+Valide as respostas do proxy:
 
 ```bash
 curl -I https://cloud.example.com/push
 curl -I https://cloud.example.com/push/
 ```
 
-Expected behavior:
+O comportamento esperado e:
 
-- `/push` returns `301` redirecting to `/push/`
-- `/push/` does not return `502` or another proxy upstream error
+- `/push` responder com `301` para `/push/`
+- `/push/` nao responder com `502` ou outro erro de upstream do proxy
 
-Watch the service logs while generating a Nextcloud notification, Talk message, or file change:
+Enquanto isso, acompanhe os logs do servico e gere um evento no Nextcloud, como uma notificacao, mensagem no Talk ou
+alteracao de arquivo:
 
 ```bash
 docker compose logs -f notify_push
 ```
 
-## Publish to GHCR
+## Publicacao no GHCR
 
-The workflow in `.github/workflows/publish-ghcr.yml` builds the image from `notify_push/Dockerfile` and publishes it to
+O workflow em `.github/workflows/publish-ghcr.yml` constroi a imagem a partir de `notify_push/Dockerfile` e publica no
 GitHub Container Registry.
 
-It runs on:
+Ele executa em:
 
-- pushes to `main`
-- version tags matching `v*`
-- manual dispatch
+- pushes para `main`
+- tags de versao no formato `v*`
+- disparo manual
 
-Required repository settings:
+Requisitos do repositorio:
 
-- GitHub Actions must be enabled
-- the workflow must have `packages: write` permission
+- GitHub Actions habilitado
+- permissao `packages: write` para o workflow
 
-The published image name is derived from the repository path, for example:
+O nome final da imagem e derivado do caminho do repositorio, por exemplo:
 
 ```text
 ghcr.io/librecodecoop/nextcloud-notify-push-docker:latest
 ghcr.io/librecodecoop/nextcloud-notify-push-docker:main
 ```
 
-## Portuguese docs
+## Documentacao em portugues do upstream
 
-The Portuguese translation for the vendored upstream README is available at
+O README em portugues do projeto vendorizado esta em
 [`notify_push/README.pt-BR.md`](/home/mohr/git/librecode/nextcloud-notify-push-docker/notify_push/README.pt-BR.md).
