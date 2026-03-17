@@ -1,0 +1,40 @@
+services:
+  nextcloud:
+    image: nextcloud:apache
+    environment:
+      VIRTUAL_HOST: cloud.example.com
+      VIRTUAL_PATH: /
+    networks:
+      - reverse-proxy
+      - internal
+
+  notify_push:
+    image: ghcr.io/librecodecoop/nextcloud-notify-push-docker:latest
+    environment:
+      PORT: "7867"
+      NEXTCLOUD_URL: "https://cloud.example.com"
+      REDIS_URL: "redis://redis:6379/0"
+      DATABASE_URL: "postgres://nextcloud:secret@postgres/nextcloud"
+      DATABASE_PREFIX: ""
+      LOG: "info"
+      VIRTUAL_HOST: cloud.example.com
+      VIRTUAL_PATH: /push/
+      VIRTUAL_DEST: /
+      VIRTUAL_PORT: "7867"
+    expose:
+      - "7867"
+    networks:
+      - reverse-proxy
+      - internal
+      - redis
+      - postgres
+
+networks:
+  internal:
+    driver: bridge
+  reverse-proxy:
+    external: true
+  redis:
+    external: true
+  postgres:
+    external: true
