@@ -112,7 +112,7 @@ ghcr.io/librecodecoop/nextcloud-notify-push-docker:latest
 ghcr.io/librecodecoop/nextcloud-notify-push-docker:main
 ```
 
-## Documentacao em portugues do upstream
+## Documentacao em ingles do upstream
 
-O README em portugues do projeto vendorizado esta em
-[`notify_push/README.pt-BR.md`](/home/mohr/git/librecode/nextcloud-notify-push-docker/notify_push/README.pt-BR.md).
+O README em inglês do projeto oficial está em
+[`notify_push/README.md`](README.md).
