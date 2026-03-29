@@ -18,37 +18,56 @@ This repository adds:
 
 Use the same host for Nextcloud and `notify_push`, and route `/push/` to the push service.
 
+Copy the compose example and adjust the values in the `.env` file.
+
 Example using the generic domain `cloud.example.com`:
 
 ```yaml
 services:
   nextcloud:
-    image: nextcloud:apache
+    image: ${NEXTCLOUD_IMAGE}
     environment:
-      VIRTUAL_HOST: cloud.example.com
-      VIRTUAL_PATH: /
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      VIRTUAL_PATH: ${NEXTCLOUD_VIRTUAL_PATH}
     networks:
       - reverse-proxy
       - internal
 
   notify_push:
-    image: ghcr.io/librecodecoop/nextcloud-notify-push-docker:latest
+    image: ${NOTIFY_PUSH_IMAGE}
     environment:
-      PORT: "7867"
-      NEXTCLOUD_URL: "https://cloud.example.com"
-      REDIS_URL: "redis://redis:6379/0"
-      DATABASE_URL: "postgres://nextcloud:secret@postgres/nextcloud"
-      DATABASE_PREFIX: ""
-      LOG: "info"
-      VIRTUAL_HOST: cloud.example.com
-      VIRTUAL_PATH: /push/
-      VIRTUAL_DEST: /
-      VIRTUAL_PORT: "7867"
+      PORT: "${NOTIFY_PUSH_PORT}"
+      NEXTCLOUD_URL: "${NEXTCLOUD_URL}"
+      REDIS_URL: "${REDIS_URL}"
+      DATABASE_URL: "${DATABASE_URL}"
+      DATABASE_PREFIX: "${DATABASE_PREFIX}"
+      LOG: "${NOTIFY_PUSH_LOG}"
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      VIRTUAL_PATH: ${NOTIFY_PUSH_VIRTUAL_PATH}
+      VIRTUAL_DEST: ${NOTIFY_PUSH_VIRTUAL_DEST}
+      VIRTUAL_PORT: "${NOTIFY_PUSH_PORT}"
     expose:
-      - "7867"
+      - "${NOTIFY_PUSH_PORT}"
     networks:
       - reverse-proxy
       - internal
+```
+
+Example `.env`:
+
+```dotenv
+NEXTCLOUD_IMAGE=nextcloud:apache
+NOTIFY_PUSH_IMAGE=ghcr.io/librecodecoop/nextcloud-notify-push-docker:latest
+VIRTUAL_HOST=cloud.example.com
+NEXTCLOUD_VIRTUAL_PATH=/
+NOTIFY_PUSH_PORT=7867
+NEXTCLOUD_URL=https://cloud.example.com
+REDIS_URL=redis://redis:6379/0
+DATABASE_URL=postgres://nextcloud:secret@postgres/nextcloud
+DATABASE_PREFIX=
+NOTIFY_PUSH_LOG=info
+NOTIFY_PUSH_VIRTUAL_PATH=/push/
+NOTIFY_PUSH_VIRTUAL_DEST=/
 ```
 
 Important details:
